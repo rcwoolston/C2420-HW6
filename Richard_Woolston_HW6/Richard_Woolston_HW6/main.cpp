@@ -35,7 +35,7 @@ int main() {
 	(*Heap).PrintHeap();
 
 
-	//Element temp = (*Heap).DeleteMax();
+	Element temp = (*Heap).DeleteMax();
 
 	(*Heap).PrintHeap();
 
