@@ -9,33 +9,30 @@ using namespace std;
 int main() {
 	fstream fin;
 	string tempString;
-	int tempInt;
+	int tempInt, test = 10, here = 0;
 	MaxHeap *Heap;
-	bool created = false;
-
 
 	fin.open("SortedWords.txt");
 
-	while (!fin.eof()) {
+	fin >> tempString;
+
+	//Create the initial array size from the first line of the file, then skip during any other time in the loop
+	Heap = new MaxHeap((stoi(tempString) + 1));
+
+
+	while (!fin.eof() &&(here<test)) {
 		fin >> tempString;
-
-		if (!created) {
-			//Create the initial array size from the first line of the file, then skip during any other time in the loop
-			Heap = new MaxHeap((stoi(tempString) + 1));
-			created = true;
-			continue;
-		}
-
 		fin >> tempInt;
 
 		Element *temp = new Element(tempString, tempInt);
 
 		(*Heap).Insert(*temp);
-
+		here++;
 	}
 
 	fin.close();
 
+	(*Heap).PrintHeap();
 
 	return 0;
 
