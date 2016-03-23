@@ -5,10 +5,14 @@
 using namespace std;
 
 MaxHeap::MaxHeap(int arraySize) {
-	arraySize = arraySize;
+	(*this).arraySize = (arraySize+1);
 	heapSize = 0;
 
-	H = new Element[arraySize];
+	H = new Element[(*this).arraySize];
+}
+
+MaxHeap::MaxHeap(Element *A, int heapSize, int arraySize) {
+
 }
 
 void MaxHeap::Insert(const Element &a) {
@@ -27,10 +31,6 @@ void MaxHeap::PercolateUp(int i) {
 	if (i != 1) {
 		parentIndex = Parent(i);
 		if (H[parentIndex].weight < H[i].weight) {
-			//Element *temp = new Element();
-			//*temp = H[parentIndex];
-			//H[parentIndex] = H[i];
-			//H[i] = *temp;
 			Swap(H[i], H[parentIndex]);
 			PercolateUp(parentIndex);
 		}
@@ -41,24 +41,28 @@ void MaxHeap::PercolateUp(int i) {
 }
 
 Element MaxHeap::DeleteMax() {
-	Element *temp = new Element();
 
-	*temp = H[1];
-	H[1] = H[heapSize];
-	
-	heapSize--;
+	if (heapSize >= 1) {
+		Element *temp = new Element();
 
-	PercolateDown(1);
+		*temp = H[1];
+		H[1] = H[heapSize];
 
-	return *temp;
+		heapSize--;
+
+		PercolateDown(1);
+
+		return *temp;
+	}
 }
 
 void MaxHeap::PercolateDown(int i) {
-	
-	if (i < heapSize) {
-		int leftChildIndex = Left(i);
-		int rightChildIndex = Right(i);
 
+	int leftChildIndex = Left(i);
+	int rightChildIndex = Right(i);
+	
+	if (leftChildIndex < heapSize && rightChildIndex <= heapSize) {
+		
 		//Weight of the current index is smaller then both children
 		if (H[leftChildIndex].weight > H[i].weight && H[rightChildIndex].weight > H[i].weight) {
 			//Find out which child is larger
@@ -84,7 +88,7 @@ void MaxHeap::PercolateDown(int i) {
 		}
 	}
 	else {
-		system("pause");
+		cout <<endl<<"Last Word: " << H[i].word << "  Weight: " << H[i].weight << endl;
 	}
 
 }
@@ -115,4 +119,51 @@ void MaxHeap::Swap(Element &a, Element &b) {
 	*temp = a;
 	a = b;
 	b = *temp;
+}
+
+Element* MaxHeap::FindTopMatches(int count, string match) {
+	Element* TopMatchs;
+	TopMatchs = new Element[count];
+	int here = 0, searchIndex=1;
+
+	while (here < count && searchIndex <= heapSize) {
+		int compareValue = H[searchIndex].word.find(match);
+		if (compareValue == 0) {
+			Element *temp = new Element(H[searchIndex].word, H[searchIndex].weight);
+			*(TopMatchs + here) = *temp;
+			here++;
+		}
+		searchIndex++;
+	}
+
+	return TopMatchs;
+}
+
+int MaxHeap::GetHeapSize() {
+	return heapSize;
+}
+
+void MaxHeap::Merge(const MaxHeap &newHeap) {
+	int newSize = (*this).arraySize + newHeap.arraySize;
+
+	//Create the new array
+	MaxHeap *MergedHeap = new MaxHeap(newSize);
+
+	// Add already held objects;
+	int here = 0;
+	while (here < (*this).heapSize) {
+		Element *temp = new Element((*this).H[here].word, (*this).H[here].weight);
+		(*MergedHeap).Insert(*temp);
+		here++;
+	}
+
+	//Add other heap
+	here = 0;
+	while (here < newHeap.heapSize) {
+		Element *temp = new Element((*this).H[here].word, (*this).H[here].weight);
+		(*MergedHeap).Insert(*temp);
+		here++;
+	}
+
+	(*this).H = (*MergedHeap).H;
 }

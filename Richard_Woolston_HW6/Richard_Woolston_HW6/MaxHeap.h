@@ -27,14 +27,16 @@ private:  int arraySize;      // the size of the array, index from 0 to array_si
 		  void PercolateDown(int);  // DownHeap method.  It will be called in MaxHeap and DeleteMax  
 		  void PercolateUp(int i);
 		  void Swap(Element &a, Element &b);
+		  
 
 public:  MaxHeap(int arraySize = 30);  // Generate an empty heap with the default array size of 30. 
-		 //MaxHeap(Element *A, int heapSize, int arraySize) ;  // A contains a sequence of elements 
+		 MaxHeap(Element *A, int heapSize, int arraySize) ;  // A contains a sequence of elements 
 		 //~MaxHeap() ;   
 		 void Insert(const Element &a);   // Insert a new element containing word and its weight             
 		 Element DeleteMax();    // Find, return, and remove the element with the maximum weight  
 		 void PrintHeap();   // Print the heap in tree structure; each node containing word and weight  
-		 //void Merge(const MaxHeap &newHeap) ;  // Merge with another heap to form a larger heap  
-		 //Element * FindTopMatches(int count) ;  // return top “count” matching words based on weights
+		 void Merge(const MaxHeap &newHeap) ;  // Merge with another heap to form a larger heap  
+		 Element* FindTopMatches(int count, string match);  // return top “count” matching words based on weights
+		 int GetHeapSize();
 };
 
