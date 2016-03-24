@@ -137,6 +137,7 @@ int main() {
 	//Main Driver section
 	while (!done) {
 		string prefixes;
+		prefixesVector.clear();
 		int value;
 		bool searching = true;
 		cout << endl << endl << "MAIN MENU" << endl;
@@ -164,10 +165,29 @@ int main() {
 				}
 			}
 			here = 0;
-			while (here < prefixesVector.size()) {
-				tempString = prefixesVector[here];
+			if (prefixesVector.size() > 1) {
+				MaxHeap *returnedHeap;
+				while (here < prefixesVector.size()) {
+					tempString = prefixesVector[here];
+					if (here == 0) {
+						TempFind = (*Heap).FindTopMatches(tempInt, tempString);
+						returnedHeap = new MaxHeap(TempFind, tempInt, tempInt + 2);
+					}
+					else {
+						TempFind = (*Heap).FindTopMatches(tempInt, tempString);
+					}
+					here++;
+				}
+			}
+			else if(prefixesVector.size()==1){
+				TempFind = (*Heap).FindTopMatches(tempInt, prefixesVector[0]);
 
-				here++;
+				i = 0;
+				while (i < tempInt) {
+					cout << (*(TempFind + i)).word << "  ";
+					i++;
+				}
+				
 			}
 			break;
 		case 'Q':
