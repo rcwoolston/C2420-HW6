@@ -12,16 +12,55 @@ MaxHeap::MaxHeap(int arraySize) {
 }
 
 MaxHeap::MaxHeap(Element *A, int heapSize, int arraySize) {
+	(*this).arraySize = (arraySize + 1);
+	(*this).heapSize = 0;
 
+	H = new Element[(*this).arraySize];
+
+	int here = 0;
+	
+	while (here < heapSize) {
+		(*this).Insert(*(A + here));
+		here++;
+	}
+}
+
+MaxHeap::~MaxHeap() {
+	int here = arraySize;
+
+	arraySize = NULL;
+	heapSize = NULL;
+	
+	delete H;
 }
 
 void MaxHeap::Insert(const Element &a) {
-	heapSize++;
-	H[heapSize] = a;
+	if (heapSize == 0) {
+		heapSize++;
+		H[heapSize] = a;
 
-	int i = heapSize;
+		int i = heapSize;
 
-	PercolateUp(i);
+		PercolateUp(i);
+	}
+	else {
+		int here = 1;
+		bool found = false;
+		while (here <= heapSize &&!found) {
+			if (H[here].word.compare(a.word)==0) {
+				found = true;
+			}
+			here++;
+		}
+		if (!found) {
+			heapSize++;
+			H[heapSize] = a;
+
+			int i = heapSize;
+
+			PercolateUp(i);
+		}
+	}
 }
 
 void MaxHeap::PercolateUp(int i) {
@@ -128,7 +167,7 @@ Element* MaxHeap::FindTopMatches(int count, string match) {
 
 	while (here < count && searchIndex <= heapSize) {
 		int compareValue = H[searchIndex].word.find(match);
-		if (compareValue == 0) {
+		if (compareValue >= 0) {
 			Element *temp = new Element(H[searchIndex].word, H[searchIndex].weight);
 			*(TopMatchs + here) = *temp;
 			here++;
@@ -150,20 +189,24 @@ void MaxHeap::Merge(const MaxHeap &newHeap) {
 	MaxHeap *MergedHeap = new MaxHeap(newSize);
 
 	// Add already held objects;
-	int here = 0;
-	while (here < (*this).heapSize) {
+	int here = 1;
+	while (here <= ((*this).heapSize)) {
 		Element *temp = new Element((*this).H[here].word, (*this).H[here].weight);
 		(*MergedHeap).Insert(*temp);
 		here++;
 	}
 
+	(*MergedHeap).PrintHeap();
+
 	//Add other heap
-	here = 0;
-	while (here < newHeap.heapSize) {
-		Element *temp = new Element((*this).H[here].word, (*this).H[here].weight);
+	here = 1;
+	while (here <= (newHeap.heapSize)) {
+		Element *temp = new Element(newHeap.H[here].word, newHeap.H[here].weight);
 		(*MergedHeap).Insert(*temp);
 		here++;
 	}
+
+	(*MergedHeap).PrintHeap();
 
 	(*this).H = (*MergedHeap).H;
 }
