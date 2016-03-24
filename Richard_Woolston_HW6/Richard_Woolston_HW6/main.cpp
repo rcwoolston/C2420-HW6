@@ -7,21 +7,14 @@
 
 using namespace std;
 
-template<typename T, typename P>
-T remove_if(T beg, T end, P pred)
-{
-	T dest = beg;
-	for (T itr = beg; itr != end; ++itr)
-		if (!pred(*itr))
-			*(dest++) = *itr;
-	return dest;
-}
+int BinarySearch(Element a[], int arraySize, string target);
+int FindFirstIndex(Element a[], int arraySize, int foundIndex, string target);
+int FindLastIndex(Element a[], int arraySize, int foundIndex, string target);
 
 int main() {
 	fstream fin;
 	string tempString;
 	int tempInt, test = 10, here = 0;
-	//MaxHeap *Heap;
 	bool done = false;
 	char choice;
 	vector<string> prefixesVector;
@@ -31,30 +24,6 @@ int main() {
 	fin >> tempString;
 
 	//Create the initial array size from the first line of the file, then skip during any other time in the loop
-	MaxHeap Heap(stoi(tempString));
-
-
-	while (!fin.eof() &&(here<test)) {
-		fin >> tempString;
-		fin >> tempInt;
-
-		Element *temp = new Element(tempString, tempInt);
-
-		(Heap).Insert(*temp);
-		here++;
-	}
-
-	//fin.close();
-
-	(Heap).PrintHeap();
-
-	while (false) {
-		Element temp = (Heap).DeleteMax();
-
-		cout << endl << "Removed Word: " << temp.word << "  Weight: " << temp.weight << endl;
-
-		(Heap).PrintHeap();
-	}
 
 	fin.seekg(0);
 	fin >> tempString;
@@ -133,12 +102,30 @@ int main() {
 	(*DriverHeap).PrintHeap();
 
 
+	// Read in and create the array of elements
+	fin.seekg(0);
+	fin >> tempInt;
+	Element *ElementArray = new Element[(tempInt+1)];
+
+	int numOfRecords = tempInt+1;
+
+	//Loop through and generate the array
+	here = 0;
+	while (!fin.eof() && here < numOfRecords) {
+		fin >> tempString >> tempInt;
+
+		Element* tempElement = new Element(tempString, tempInt);
+
+		ElementArray[here] = *tempElement;
+
+		here++;
+	}
 
 	//Main Driver section
 	while (!done) {
 		string prefixes;
 		prefixesVector.clear();
-		int value;
+		int value, first, last;
 		bool searching = true;
 		cout << endl << endl << "MAIN MENU" << endl;
 		cout << "S:  Search top words with one prefix or two prefixes " << endl;
@@ -153,45 +140,9 @@ int main() {
 			cin >> prefixes;
 			cout << endl << "How many do you want to return: ";
 			cin >> tempInt;
-			while (searching) {
-				value = prefixes.find('&');
-				if (value == -1) {
-					prefixesVector.push_back(prefixes);
-					searching = false;
-					continue;
-				}
-				else {
-					prefixesVector.push_back(prefixes.substr(0, (value)));
-					prefixes = prefixes.substr((value + 1),prefixes.length());
-				}
-			}
-			here = 0;
-			if (prefixesVector.size() > 1) {
-				MaxHeap *returnedHeap;
-				while (here < prefixesVector.size()) {
-					tempString = prefixesVector[here];
-					if (here == 0) {
-						TempFind = (Heap).FindTopMatches(tempInt, tempString);
-						returnedHeap = new MaxHeap(TempFind, tempInt, tempInt + 2);
-					}
-					else {
-						TempFind = (Heap).FindTopMatches(tempInt, tempString);
-						MaxHeap *temp = new MaxHeap(TempFind, tempInt, tempInt + 2);
-						(*returnedHeap).Merge(*temp);
-					}
-					here++;
-				}
-			}
-			else if(prefixesVector.size()==1){
-				TempFind = (Heap).FindTopMatches(tempInt, prefixesVector[0]);
-
-				i = 0;
-				while (i < tempInt) {
-					cout << (*(TempFind + i)).word << "  ";
-					i++;
-				}
-				
-			}
+			value = BinarySearch(ElementArray, numOfRecords, prefixes);
+			first = FindFirstIndex(ElementArray, numOfRecords, value, prefixes);
+			last = FindLastIndex(ElementArray, numOfRecords, value, prefixes);
 			break;
 		case 'Q':
 			cout << endl << "Exiting" << endl;
@@ -208,3 +159,53 @@ int main() {
 	return 0;
 }
 
+int BinarySearch(Element a[], int arraySize, string target) {
+	bool found = false;
+
+	int low = 0;
+	int high = arraySize - 1;
+
+	while (low <= high) {
+		int mid = (low + high) / 2;
+
+		if (0 < a[mid].word.substr(0,target.length()).compare(target)) {
+			high = mid - 1;
+		}
+		else if (0 > a[mid].word.substr(0, target.length()).compare(target)) {
+			low = mid + 1;
+		}
+		else {
+			return mid;
+		}
+	}
+	return -1;
+}
+int FindFirstIndex(Element a[], int arraySize, int foundIndex, string target) {
+	bool done = false;
+	int searchIndex = foundIndex - 1;
+
+	while (!done && searchIndex >= 0){
+		if (a[searchIndex].word.substr(0,target.length()).compare(target) < 0) {
+			done = true;
+			return (searchIndex + 1);
+		}
+		searchIndex--;
+	}
+
+	return 0;
+}
+
+int FindLastIndex(Element a[], int arraySize, int foundIndex, string target) {
+	bool done = false;
+	int searchIndex = foundIndex + 1;
+
+	while (!done && searchIndex < arraySize) {
+		if (a[searchIndex].word.substr(0, target.length()).compare(target) < 0) {
+			done = true;
+			return (searchIndex - 1);
+		}
+		searchIndex++;
+	}
+
+	return 0;
+}
