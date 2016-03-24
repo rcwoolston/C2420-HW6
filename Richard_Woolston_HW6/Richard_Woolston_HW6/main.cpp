@@ -21,7 +21,7 @@ int main() {
 	fstream fin;
 	string tempString;
 	int tempInt, test = 10, here = 0;
-	MaxHeap *Heap;
+	//MaxHeap *Heap;
 	bool done = false;
 	char choice;
 	vector<string> prefixesVector;
@@ -31,7 +31,7 @@ int main() {
 	fin >> tempString;
 
 	//Create the initial array size from the first line of the file, then skip during any other time in the loop
-	Heap = new MaxHeap(stoi(tempString));
+	MaxHeap Heap(stoi(tempString));
 
 
 	while (!fin.eof() &&(here<test)) {
@@ -40,20 +40,20 @@ int main() {
 
 		Element *temp = new Element(tempString, tempInt);
 
-		(*Heap).Insert(*temp);
+		(Heap).Insert(*temp);
 		here++;
 	}
 
 	//fin.close();
 
-	(*Heap).PrintHeap();
+	(Heap).PrintHeap();
 
 	while (false) {
-		Element temp = (*Heap).DeleteMax();
+		Element temp = (Heap).DeleteMax();
 
 		cout << endl << "Removed Word: " << temp.word << "  Weight: " << temp.weight << endl;
 
-		(*Heap).PrintHeap();
+		(Heap).PrintHeap();
 	}
 
 	fin.seekg(0);
@@ -158,6 +158,7 @@ int main() {
 				if (value == -1) {
 					prefixesVector.push_back(prefixes);
 					searching = false;
+					continue;
 				}
 				else {
 					prefixesVector.push_back(prefixes.substr(0, (value)));
@@ -170,17 +171,19 @@ int main() {
 				while (here < prefixesVector.size()) {
 					tempString = prefixesVector[here];
 					if (here == 0) {
-						TempFind = (*Heap).FindTopMatches(tempInt, tempString);
+						TempFind = (Heap).FindTopMatches(tempInt, tempString);
 						returnedHeap = new MaxHeap(TempFind, tempInt, tempInt + 2);
 					}
 					else {
-						TempFind = (*Heap).FindTopMatches(tempInt, tempString);
+						TempFind = (Heap).FindTopMatches(tempInt, tempString);
+						MaxHeap *temp = new MaxHeap(TempFind, tempInt, tempInt + 2);
+						(*returnedHeap).Merge(*temp);
 					}
 					here++;
 				}
 			}
 			else if(prefixesVector.size()==1){
-				TempFind = (*Heap).FindTopMatches(tempInt, prefixesVector[0]);
+				TempFind = (Heap).FindTopMatches(tempInt, prefixesVector[0]);
 
 				i = 0;
 				while (i < tempInt) {

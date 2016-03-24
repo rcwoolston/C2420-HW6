@@ -19,7 +19,7 @@ MaxHeap::MaxHeap(Element *A, int heapSize, int arraySize) {
 
 	int here = 0;
 	
-	while (here < heapSize) {
+	while (here < heapSize && (*(A+here)).word.compare("") != 0) {
 		(*this).Insert(*(A + here));
 		here++;
 	}
@@ -165,7 +165,7 @@ Element* MaxHeap::FindTopMatches(int count, string match) {
 	TopMatchs = new Element[count];
 	int here = 0, searchIndex=1;
 
-	while (here < count && searchIndex <= heapSize) {
+	while (here < count && searchIndex <= heapSize && H[searchIndex].word.compare("") != 0) {
 		int compareValue = H[searchIndex].word.find(match);
 		if (compareValue >= 0) {
 			Element *temp = new Element(H[searchIndex].word, H[searchIndex].weight);
