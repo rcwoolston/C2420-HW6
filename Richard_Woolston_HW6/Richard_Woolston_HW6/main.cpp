@@ -10,6 +10,7 @@ using namespace std;
 int BinarySearch(Element a[], int arraySize, string target);
 int FindFirstIndex(Element a[], int arraySize, int foundIndex, string target);
 int FindLastIndex(Element a[], int arraySize, int foundIndex, string target);
+void CreateHeaps(Element a[], const vector<string> &searches,int numberOfReturns, int numOfRecords);
 
 int main() {
 	fstream fin;
@@ -17,7 +18,6 @@ int main() {
 	int tempInt, test = 10, here = 0;
 	bool done = false;
 	char choice;
-	vector<string> prefixesVector;
 
 	fin.open("SortedWords.txt");
 
@@ -60,7 +60,7 @@ int main() {
 	cout << endl << "Find Top Matches: " << endl;
 	tempString = "a";
 	cout << "Returning top 5 words with " << tempString << endl;
-	Element *TempFind = (*DriverHeap).FindTopMatches(5, tempString);
+	Element *TempFind = (*DriverHeap).FindTopMatches(5);
 	int i = 0;
 	while (i < 5) {
 		cout<<(*(TempFind + i)).word<<"  ";
@@ -73,31 +73,31 @@ int main() {
 	MaxHeap *DriverHeap2 = new MaxHeap(TempFind, 5, 10);
 
 	cout << endl << "Printing out new heaps values";
-	(*DriverHeap2).PrintHeap();
+	//(*DriverHeap2).PrintHeap();
 
 	cout << endl << endl;
 	tempString = "o";
 	cout << "Returning top 3 words with " << tempString << endl;
-	TempFind = (*DriverHeap).FindTopMatches(3, tempString);
-	i = 0;
+	//TempFind = (*DriverHeap).FindTopMatches(3, tempString);
+	/*i = 0;
 	while (i < 3) {
 		cout << (*(TempFind + i)).word << "  ";
 		i++;
-	}
+	}*/
 
 	cout << endl << "Delete Max";
 	temp = (*DriverHeap).DeleteMax();
 	cout << endl << "Removed Word: " << temp.word << "  Weight: " << temp.weight << endl;
-	(*DriverHeap2).PrintHeap();
+	//(*DriverHeap2).PrintHeap();
 	temp = (*DriverHeap).DeleteMax();
 	cout << endl << "Removed Word: " << temp.word << "  Weight: " << temp.weight << endl;
-	(*DriverHeap2).PrintHeap();
+	//(*DriverHeap2).PrintHeap();
 
 
 	(*DriverHeap).PrintHeap();
 
 	cout << endl << endl << "Merging Drivers Together" << endl;
-	(*DriverHeap).Merge(*DriverHeap2);
+	//(*DriverHeap).Merge(*DriverHeap2);
 
 	(*DriverHeap).PrintHeap();
 
@@ -120,16 +120,19 @@ int main() {
 
 		here++;
 	}
+	vector<string> prefixSearches;
 
 	//Main Driver section
 	while (!done) {
 		string prefixes;
-		prefixesVector.clear();
+		prefixSearches.clear();
 		int value, first, last;
 		bool searching = true;
+		int inputIndex = 0;
 		cout << endl << endl << "MAIN MENU" << endl;
 		cout << "S:  Search top words with one prefix or two prefixes " << endl;
 		cout << "Q: Quit Search " << endl;
+		cout << "CHOICE:  ";
 		cin >> choice;
 
 		choice = toupper(choice);
@@ -137,12 +140,28 @@ int main() {
 		switch (choice)
 		{
 		case 'S': cout << endl << endl << "Please enter your prefix or prefixes:  ";
-			cin >> prefixes;
-			cout << endl << "How many do you want to return: ";
+			//cin >> prefixes;
+			cin.ignore();
+			std::getline(cin, prefixes);
+			cout << "How many do you want to return: ";
 			cin >> tempInt;
-			value = BinarySearch(ElementArray, numOfRecords, prefixes);
-			first = FindFirstIndex(ElementArray, numOfRecords, value, prefixes);
-			last = FindLastIndex(ElementArray, numOfRecords, value, prefixes);
+
+			while (prefixes.find(" ") || prefixes.find("&")) {
+				int space = prefixes.find_first_of(" ");
+				int del = prefixes.find_first_of("&");
+				if (space > 0) {
+					tempString = prefixes.substr(0, space);
+				}
+				if (tempString.compare(" ") != 0) {
+					prefixSearches.push_back(tempString);
+				}
+				prefixes = prefixes.substr(tempString.length());
+			}
+
+			prefixSearches.push_back(prefixes);
+
+			CreateHeaps(ElementArray, prefixSearches, tempInt,numOfRecords);
+
 			break;
 		case 'Q':
 			cout << endl << "Exiting" << endl;
@@ -200,7 +219,7 @@ int FindLastIndex(Element a[], int arraySize, int foundIndex, string target) {
 	int searchIndex = foundIndex + 1;
 
 	while (!done && searchIndex < arraySize) {
-		if (a[searchIndex].word.substr(0, target.length()).compare(target) < 0) {
+		if (a[searchIndex].word.substr(0, target.length()).compare(target) > 0) {
 			done = true;
 			return (searchIndex - 1);
 		}
@@ -208,4 +227,40 @@ int FindLastIndex(Element a[], int arraySize, int foundIndex, string target) {
 	}
 
 	return 0;
+}
+void CreateHeaps(Element a[], const vector<string> &searches, int numberOfReturns, int numOfRecords) {
+	int numOfPrefixes = searches.size(), position = 0, inputIndex = 0, here;
+	Element *Subset, *insert;
+	MaxHeap *Heap, *MergeHeap;
+
+	while (position < numOfPrefixes) {
+		inputIndex = 0;
+		int value = BinarySearch(a, numOfRecords, searches[position]);
+		int first = FindFirstIndex(a, numOfRecords, value, searches[position]);
+		int last = FindLastIndex(a, numOfRecords, value, searches[position]);
+		//Looping through to create insert
+		Subset = new Element[(last - first)+1];
+		here = first;
+		while (here <= last) {
+			insert = new Element();
+			insert->word = a[here].word;
+			insert->weight = a[here].weight;
+			*(Subset + inputIndex) = *insert;
+			inputIndex++;
+			here++;
+		}
+		if (position == 0) {
+			Heap = new MaxHeap(Subset, (last - first), ((last - first) + 1));
+		}
+		else {
+			MergeHeap = new MaxHeap(Subset, (last - first), ((last - first) + 1));
+			Heap->Merge(*MergeHeap);
+		}
+		position++;
+	}
+	Subset = new Element[numberOfReturns];
+	Subset = Heap->FindTopMatches(numberOfReturns);
+
+	Heap = new MaxHeap(Subset, numberOfReturns, (numberOfReturns + 1));
+	Heap->PrintHeap();
 }

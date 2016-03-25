@@ -15,12 +15,18 @@ MaxHeap::MaxHeap(Element *A, int heapSize, int arraySize) {
 	(*this).arraySize = (arraySize + 1);
 	(*this).heapSize = 0;
 
-	H = new Element[(*this).arraySize];
+	H = new Element[(arraySize+1)];
 
 	int here = 0;
 	
 	while (here < heapSize && (*(A+here)).word.compare("") != 0) {
 		(*this).Insert(*(A + here));
+		here++;
+	}
+
+	here = 1;
+	while (here < heapSize) {
+		cout << H[here].word << "  ";
 		here++;
 	}
 }
@@ -160,20 +166,19 @@ void MaxHeap::Swap(Element &a, Element &b) {
 	b = *temp;
 }
 
-Element* MaxHeap::FindTopMatches(int count, string match) {
+Element* MaxHeap::FindTopMatches(int count) {
 	Element* TopMatchs;
 	TopMatchs = new Element[count];
-	int here = 0, searchIndex=1;
+	int here = 1, insertIndex=0;
 
-	while (here < count && searchIndex <= heapSize && H[searchIndex].word.compare("") != 0) {
-		int compareValue = H[searchIndex].word.find(match);
-		if (compareValue >= 0) {
-			Element *temp = new Element(H[searchIndex].word, H[searchIndex].weight);
-			*(TopMatchs + here) = *temp;
-			here++;
-		}
-		searchIndex++;
+	while (insertIndex < count && this->H[here].word.compare("") !=0) {
+		//(*(TopMatchs + here)) = (*(this->H + here));
+		(*(TopMatchs + insertIndex)).word = this->H[here].word;
+		(*(TopMatchs + insertIndex)).weight = this->H[here].weight;
+		insertIndex++;
+		here++;
 	}
+
 
 	return TopMatchs;
 }

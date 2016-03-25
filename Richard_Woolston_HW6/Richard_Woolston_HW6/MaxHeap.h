@@ -36,7 +36,7 @@ public:  MaxHeap(int arraySize = 30);  // Generate an empty heap with the defaul
 		 Element DeleteMax();    // Find, return, and remove the element with the maximum weight  
 		 void PrintHeap();   // Print the heap in tree structure; each node containing word and weight  
 		 void Merge(const MaxHeap &newHeap) ;  // Merge with another heap to form a larger heap  
-		 Element* FindTopMatches(int count, string match);  // return top “count” matching words based on weights
+		 Element* FindTopMatches(int count);  // return top “count” matching words based on weights
 		 int GetHeapSize();
 };
 
