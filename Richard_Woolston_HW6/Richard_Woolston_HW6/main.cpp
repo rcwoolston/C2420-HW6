@@ -3,6 +3,7 @@
 #include "MaxHeap.h"
 #include <fstream>
 #include <vector>
+#include <sstream>
 
 
 using namespace std;
@@ -124,10 +125,10 @@ int main() {
 
 	//Main Driver section
 	while (!done) {
-		string prefixes;
+		string prefixes, holder;
 		prefixSearches.clear();
 		int value, first, last;
-		bool searching = true;
+		bool searching = true, insert = false, splitting = true;
 		int inputIndex = 0;
 		cout << endl << endl << "MAIN MENU" << endl;
 		cout << "S:  Search top words with one prefix or two prefixes " << endl;
@@ -146,19 +147,58 @@ int main() {
 			cout << "How many do you want to return: ";
 			cin >> tempInt;
 
-			while (prefixes.find(" ") || prefixes.find("&")) {
+			while (splitting) {
 				int space = prefixes.find_first_of(" ");
 				int del = prefixes.find_first_of("&");
-				if (space > 0) {
-					tempString = prefixes.substr(0, space);
+				if (space < del) {
+					if (space > 0) {
+						tempString = prefixes.substr(0, space);
+						insert = true;
+					}
 				}
-				if (tempString.compare(" ") != 0) {
-					prefixSearches.push_back(tempString);
+				else if (del < space) {
+					if (del > 0) {
+						tempString = prefixes.substr(0, del);
+						insert = true;
+					}
 				}
-				prefixes = prefixes.substr(tempString.length());
-			}
+				else if (space == -1 && del == -1) {
+					insert = true;
+					splitting = false;
+					tempString = prefixes;
+				}
+				if (space == 0) {
+					insert = false;
+					holder.clear();
+					here = 1;
+					while (here < prefixes.length()) {
+						holder.push_back(prefixes[here]);
+						here++;
+					}
 
-			prefixSearches.push_back(prefixes);
+					prefixes.clear();
+					prefixes = holder;
+				}
+				else if (del == 0) {
+					insert = false;
+					holder.clear();
+					here = 1;
+					while (here < prefixes.length()) {
+						holder.push_back(prefixes[here]);
+						here++;
+					}
+
+					prefixes.clear();
+					prefixes = holder;
+				}
+				if (tempString.compare(" ") != 0 && tempString.compare("&") != 0 && insert) {
+					insert = false;
+					prefixSearches.push_back(tempString);
+					if (space != -1 && del != -1) {
+						prefixes = prefixes.substr(tempString.length());
+					}
+				}
+			}
 
 			CreateHeaps(ElementArray, prefixSearches, tempInt,numOfRecords);
 
@@ -251,10 +291,14 @@ void CreateHeaps(Element a[], const vector<string> &searches, int numberOfReturn
 		}
 		if (position == 0) {
 			Heap = new MaxHeap(Subset, (last - first), ((last - first) + 1));
+			//Heap->PrintHeap();
 		}
 		else {
 			MergeHeap = new MaxHeap(Subset, (last - first), ((last - first) + 1));
+			//Heap->PrintHeap();
+			//MergeHeap->PrintHeap();
 			Heap->Merge(*MergeHeap);
+			//Heap->PrintHeap();
 		}
 		position++;
 	}
@@ -262,5 +306,6 @@ void CreateHeaps(Element a[], const vector<string> &searches, int numberOfReturn
 	Subset = Heap->FindTopMatches(numberOfReturns);
 
 	Heap = new MaxHeap(Subset, numberOfReturns, (numberOfReturns + 1));
+	cout << endl << "Output for the prefixe(s)" << endl;
 	Heap->PrintHeap();
 }

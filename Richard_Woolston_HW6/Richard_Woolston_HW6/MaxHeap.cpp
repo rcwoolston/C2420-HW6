@@ -24,11 +24,11 @@ MaxHeap::MaxHeap(Element *A, int heapSize, int arraySize) {
 		here++;
 	}
 
-	here = 1;
-	while (here < heapSize) {
-		cout << H[here].word << "  ";
-		here++;
-	}
+	//here = 1;
+	//while (here < heapSize) {
+	//	cout << H[here].word << "  ";
+	//	here++;
+	//}
 }
 
 MaxHeap::~MaxHeap() {
@@ -189,29 +189,39 @@ int MaxHeap::GetHeapSize() {
 
 void MaxHeap::Merge(const MaxHeap &newHeap) {
 	int newSize = (*this).arraySize + newHeap.arraySize;
+	int here, oldHeap = this->heapSize;
 
-	//Create the new array
-	MaxHeap *MergedHeap = new MaxHeap(newSize);
+	Element *holderArray;
+
+	holderArray = new Element[heapSize + 1];
 
 	// Add already held objects;
-	int here = 1;
+	here = 1;
 	while (here <= ((*this).heapSize)) {
 		Element *temp = new Element((*this).H[here].word, (*this).H[here].weight);
-		(*MergedHeap).Insert(*temp);
+		holderArray[(here - 1)] = *temp;
 		here++;
 	}
 
-	(*MergedHeap).PrintHeap();
+	this->heapSize = 0;
+	this->arraySize = newSize;
+	this->H = new Element[this -> arraySize];
+
+	here = 0;
+	while (here < oldHeap) {
+		this->Insert(holderArray[here]);
+		here++;
+	}
+
+	//this->PrintHeap();
 
 	//Add other heap
 	here = 1;
 	while (here <= (newHeap.heapSize)) {
 		Element *temp = new Element(newHeap.H[here].word, newHeap.H[here].weight);
-		(*MergedHeap).Insert(*temp);
+		this->Insert(*temp);
 		here++;
 	}
 
-	(*MergedHeap).PrintHeap();
-
-	(*this).H = (*MergedHeap).H;
+	//this->PrintHeap();
 }
