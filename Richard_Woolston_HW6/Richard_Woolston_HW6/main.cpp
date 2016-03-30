@@ -28,7 +28,7 @@ int main() {
 
 	fin.seekg(0);
 	fin >> tempString;
-	int driverSize = 15;
+	int driverSize = 12;
 
 	cout << endl << endl<<"DRIVER CODE" << endl;
 	cout << endl << "Creating Instance";
@@ -59,11 +59,11 @@ int main() {
 	(*DriverHeap).PrintHeap();
 
 	cout << endl << "Find Top Matches: " << endl;
-	tempString = "a";
-	cout << "Returning top 5 words with " << tempString << endl;
-	Element *TempFind = (*DriverHeap).FindTopMatches(5);
+	tempString = "ab";
+	cout << "Returning top 4 words with " << tempString << endl;
+	Element *TempFind = (*DriverHeap).FindTopMatches(4);
 	int i = 0;
-	while (i < 5) {
+	while (i < 4) {
 		cout<<(*(TempFind + i)).word<<"  ";
 		i++;
 	}
@@ -71,31 +71,17 @@ int main() {
 	cout << endl;
 
 	cout << endl << endl << "Testing constructor with list of elements: " << endl;
-	MaxHeap *DriverHeap2 = new MaxHeap(TempFind, 5, 10);
+	MaxHeap *DriverHeap2 = new MaxHeap(TempFind, 4, 5);
 
 	cout << endl << "Printing out new heaps values";
-	//(*DriverHeap2).PrintHeap();
+	(*DriverHeap2).PrintHeap();
 
 	cout << endl << endl;
-	tempString = "o";
-	cout << "Returning top 3 words with " << tempString << endl;
-	//TempFind = (*DriverHeap).FindTopMatches(3, tempString);
-	/*i = 0;
-	while (i < 3) {
-		cout << (*(TempFind + i)).word << "  ";
-		i++;
-	}*/
 
 	cout << endl << "Delete Max";
-	temp = (*DriverHeap).DeleteMax();
+	temp = (*DriverHeap2).DeleteMax();
 	cout << endl << "Removed Word: " << temp.word << "  Weight: " << temp.weight << endl;
-	//(*DriverHeap2).PrintHeap();
-	temp = (*DriverHeap).DeleteMax();
-	cout << endl << "Removed Word: " << temp.word << "  Weight: " << temp.weight << endl;
-	//(*DriverHeap2).PrintHeap();
-
-
-	(*DriverHeap).PrintHeap();
+	(*DriverHeap2).PrintHeap();
 
 	cout << endl << endl << "Merging Drivers Together" << endl;
 	//(*DriverHeap).Merge(*DriverHeap2);
@@ -204,7 +190,7 @@ int main() {
 
 			break;
 		case 'Q':
-			cout << endl << "Exiting" << endl;
+			cout << endl << "Exiting, Thank you for using autocomplete software developed by Richard Woolston" << endl;
 			done = true;
 			break;
 		default: cout << endl << "Invalid choice" << endl;
@@ -272,10 +258,19 @@ void CreateHeaps(Element a[], const vector<string> &searches, int numberOfReturn
 	int numOfPrefixes = searches.size(), position = 0, inputIndex = 0, here;
 	Element *Subset, *insert;
 	MaxHeap *Heap, *MergeHeap;
+	bool valid = false, created = false;
 
 	while (position < numOfPrefixes) {
 		inputIndex = 0;
 		int value = BinarySearch(a, numOfRecords, searches[position]);
+		if (value == -1) {
+			position++;
+			if (!valid) {
+				valid = false;
+			}
+			continue;
+		}
+		valid = true;
 		int first = FindFirstIndex(a, numOfRecords, value, searches[position]);
 		int last = FindLastIndex(a, numOfRecords, value, searches[position]);
 		//Looping through to create insert
@@ -289,8 +284,9 @@ void CreateHeaps(Element a[], const vector<string> &searches, int numberOfReturn
 			inputIndex++;
 			here++;
 		}
-		if (position == 0) {
+		if (!created) {
 			Heap = new MaxHeap(Subset, (last - first), ((last - first) + 1));
+			created = true;
 			//Heap->PrintHeap();
 		}
 		else {
@@ -303,9 +299,13 @@ void CreateHeaps(Element a[], const vector<string> &searches, int numberOfReturn
 		position++;
 	}
 	Subset = new Element[numberOfReturns];
+	if (!valid) {
+		cout << endl << endl << "No valid entries" << endl;
+		return;
+	}
 	Subset = Heap->FindTopMatches(numberOfReturns);
 
 	Heap = new MaxHeap(Subset, numberOfReturns, (numberOfReturns + 1));
 	cout << endl << "Output for the prefixe(s)" << endl;
-	Heap->PrintHeap();
+	Heap->FormattedPrinting();
 }

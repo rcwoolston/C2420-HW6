@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <vector>
 #include "MaxHeap.h"
 
 using namespace std;
@@ -121,7 +122,7 @@ void MaxHeap::PercolateDown(int i) {
 				PercolateDown(rightChildIndex);
 			}
 		}
-		else { // Test to see if one of the childermn is larger
+		else { // Test to see if one of the childern is larger
 			if (H[leftChildIndex].weight > H[i].weight) {
 				Swap(H[i], H[leftChildIndex]);
 				PercolateDown(leftChildIndex);
@@ -133,7 +134,7 @@ void MaxHeap::PercolateDown(int i) {
 		}
 	}
 	else {
-		cout <<endl<<"Last Word: " << H[i].word << "  Weight: " << H[i].weight << endl;
+		//cout <<endl<<"Last Word: " << H[i].word << "  Weight: " << H[i].weight << endl;
 	}
 
 }
@@ -144,6 +145,71 @@ void MaxHeap::PrintHeap() {
 	while (hereIndex <= heapSize) {
 		cout <<"Index: "<<hereIndex<< " Parent Index: "<< Parent(hereIndex) <<"  Word: " << H[hereIndex].word << "  Weight: " << H[hereIndex].weight << endl;
 		hereIndex++;
+	}
+
+	PrintPrettyTree();
+}
+
+void MaxHeap::PrintPrettyTree() {
+	//Get the number of levels in in the tree
+	cout << endl << "PRINTING PRETTY TREE" << endl;
+	if (this->heapSize != 0) {
+		int levels = (log(this->heapSize) / log(2)) + 1;
+
+		//Load an array in reverse of the number of levels
+		vector<int> numberToIndent;
+		int tempValue = 0;
+
+		for (int i = 0; i < levels; i++) {
+			if (i == 0) {
+				numberToIndent.push_back(1);
+			}
+			else {
+				tempValue = numberToIndent[(i - 1)];
+				numberToIndent.push_back((2 * tempValue) + 1);
+			}
+		}
+
+		string firstIndent, normalIndent;
+		bool done = false;
+		int here = 1, currentLevel = 0, indentMultiplier = 0, currentPositionInLevel = 0, levelsLeft = levels, numberInThatLevel = 0;
+		while (!done) {
+			currentPositionInLevel = 0;
+			indentMultiplier = numberToIndent[levelsLeft - 1];
+			numberInThatLevel = pow(2, currentLevel);
+			normalIndent = "", firstIndent = "";
+
+			for (int i = 0; i < indentMultiplier * 5; i++) {
+				normalIndent.append(" ");
+			}
+
+			for (int i = 0; i < (indentMultiplier / 2) * 5; i++) {
+				firstIndent.append(" ");
+			}
+
+			while (currentPositionInLevel < numberInThatLevel && !done) {
+				if (currentPositionInLevel == 0) {
+					cout << firstIndent << this->H[here].word;
+				}
+				else {
+					cout << normalIndent << this->H[here].word;
+				}
+				here++;
+
+				if (here > this->heapSize) {
+					done = true;
+				}
+				currentPositionInLevel++;
+			}
+
+			// insert all the values into the tree
+			if (here > this->heapSize) {
+				done = true;
+			}
+			cout << endl;
+			currentLevel++;
+			levelsLeft--;
+		}
 	}
 }
 
@@ -172,7 +238,6 @@ Element* MaxHeap::FindTopMatches(int count) {
 	int here = 1, insertIndex=0;
 
 	while (insertIndex < count && this->H[here].word.compare("") !=0) {
-		//(*(TopMatchs + here)) = (*(this->H + here));
 		(*(TopMatchs + insertIndex)).word = this->H[here].word;
 		(*(TopMatchs + insertIndex)).weight = this->H[here].weight;
 		insertIndex++;
@@ -224,4 +289,14 @@ void MaxHeap::Merge(const MaxHeap &newHeap) {
 	}
 
 	//this->PrintHeap();
+}
+
+
+void MaxHeap::FormattedPrinting() {
+	int hereIndex = 1;
+	cout << endl;
+	while (hereIndex <= heapSize) {
+		cout << "   " << H[hereIndex].word << endl;
+		hereIndex++;
+	}
 }
